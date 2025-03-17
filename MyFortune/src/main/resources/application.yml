@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: MyFortune
+  thymeleaf:
+    cache: false # Thymeleaf ??? ?? ??
+  app:
+    title: MyFortuce
