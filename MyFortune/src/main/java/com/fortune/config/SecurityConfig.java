@@ -20,6 +20,7 @@ public class SecurityConfig {
 				.formLogin(formLogin -> formLogin
 						.loginPage("/login/form")
 						.loginProcessingUrl("/login")
+						.failureUrl("/login/failure")
 						.defaultSuccessUrl("/"))
 				//.addFilterBefore(new JwtAuthenticationFilter(null, null), UsernamePasswordAuthenticationFilter.class)
 				.authorizeHttpRequests((authorize) -> authorize
