@@ -1,15 +1,14 @@
 package com.fortune.entity;
 
+import com.fortune.code.converter.BooleanToYNConverter;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @Entity
 @SuperBuilder
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Users extends BaseEntity{
@@ -26,4 +25,20 @@ public class Users extends BaseEntity{
 
     @Column(nullable = false)
     private String nickname;
+
+    @Column(name = "login_fail_cnt", nullable = false)
+    private int loginFailCnt = 0;
+
+    @Column(name = "lock_yn", nullable = false, length = 1)
+    @Convert(converter = BooleanToYNConverter.class)
+    @Builder.Default
+    private Boolean lockYn = false;
+
+    public void incLoginFailCnt() {
+        this.loginFailCnt++;
+    }
+
+    public void resetLoginFailCnt() {
+        this.loginFailCnt = 0;
+    }
 }

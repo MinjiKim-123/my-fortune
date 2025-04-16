@@ -6,34 +6,55 @@
 
 <!-- Main Content -->
 <th:block layout:fragment="content">
+
     <h1>회원가입</h1>
-    <label for="idInp">아이디</label><input type="text" name="id" id="idInp"/>
-    <button type="button" onclick="checkDuplication();">중복확인</button>
-    <br/>
-    <label for="pwdInp">비밀번호</label>
-    <input type="password" name="password" id="pwdInp"/>
-    <br/>
-    <label for="rePwdInp">비밀번호 재입력</label>
-    <input type="password" id="rePwdInp"/>
-    <br/>
-    <label for="nickNmImp">닉네임</label>
-    <input type="text" id="nickNmImp" />
+
+    <form method="post" action="/join" onsubmit="return checkForm();">
+        <label for="idInp">아이디</label>
+        <input type="text" name="id" id="idInp" maxlength="20" required/>
+        <button type="button" onclick="checkDuplication();">중복확인</button>
+        <br/>
+        <label for="pwdInp">비밀번호</label>
+        <input type="password" name="password" id="pwdInp" class="pwdInputs" required/>
+        <p id="pwdAlertMsg"></p>
+        <label for="rePwdInp">비밀번호 재입력</label>
+        <input type="password" id="rePwdInp" class="pwdInputs" required/>
+        <br/>
+        <label for="nickNmImp">닉네임</label>
+        <input type="text" id="nickNmImp" maxlength="15" required/>
+    </form>
+
 </th:block>
 
 <script type="text/javascript">
 
     let isCheckedId = false;
+    const pwdRegExp = /^(?=.*[a-zA-Z)(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/;
+    const idRegExp = /^[a-zA-Z\d]{6,20}$/;
 
+    document.addEventListener('DOMContentLoaded', function (){
+        document.getElementById('idInp').addEventListener('input', function (){
+            if(isCheckedId)
+                isCheckedId = false;
+        });
+
+        document.querySelectorAll('.pwdInputs').forEach(obj =>{
+            obj.addEventListener('input', checkPwd);
+        });
+    });
+
+    /**
+     * 아이디 중복 확인
+     */
     function checkDuplication(){
-        const newId = document.getElementById('idInp').value();
-        if(newId) {
-            alert('아이디를 입력해주세요.');
+
+        if(!checkId()) {
+            document.getElementById('idInp').focus();
             return;
         }
 
         window.fetch('/id/exists?newId=' + id,{
-            method: 'get',
-
+            method: 'get'
         }).then((response) => response.json())
         .then((result) => {
             isCheckedId = !result.data;
@@ -45,7 +66,61 @@
             alert('처리를 실패했습니다.');
             console.log(error);
         });
+    }
 
+    /**
+     * 아이디 값 검증
+     */
+    function checkId(){
+        let result = false;
+        const newId = document.getElementById('idInp').value();
+
+        if(!idRegExp.test(newId)){
+            alert('아이디는 영문 대소문자,숫자를 조합해서 6자~20자로 입력해주세요.');
+        }else
+            result = true;
+
+        return result;
+    }
+
+    /**
+     * 비밀번호 확인
+     */
+    function checkPwd(){
+        let result = false;
+        const pwd = document.getElementById('pwdInp').value();
+        const rePwd = document.getElementById('rePwdInp').value();
+
+        if(pwd !== rePwd){
+            document.getElementById('pwdAlertMsg').innerText = '비밀번호와 재입력 값이 동일하지 않습니다.'
+        }else if(!pwdRegExp.test(pwd)){
+            document.getElementById('pwdAlertMsg').innerText = '비밀번호는 대소문자,특수문자,숫자를 한가지 이상씩 8~15자로 입력해주세요.'
+        }else {
+            document.getElementById('pwdAlertMsg').innerText = '';
+            result = true
+        }
+
+        return result;
+    }
+
+
+    /**
+     * 폼 입력 값 검증
+     */
+    function checkForm(){
+        let result = false;
+
+        if(!isCheckedId)
+            alert('아이디 중복 확인을 해주세요.');
+        else if(!checkPwd()) {
+            alert('비밀번호를 확인해주세요.');
+            document.getElementById('pwdInp').focus();
+        } else if(document.getElementById('nickNmImp').value())
+            alert('닉네임을 입력해주세요.');
+        else
+            result = true
+
+        return result;
     }
 </script>
 </html>
