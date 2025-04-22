@@ -63,18 +63,9 @@ class UserServiceTest {
 		//given
 		RegistUserDto dto = new RegistUserDto(userId, pwd, nickNm);
 
-		Users savedUser = Users.builder()
-				.idx(1)
-				.build();
-
-		when(usersRepository.save(any(Users.class))).thenReturn(savedUser);
-
-		// when
-		int userIdx = userService.registUser(dto);
-
-		// then
-		assertEquals(1, userIdx);
-		verify(usersRepository, times(1)).save(any(Users.class));
+		assertThrows(IllegalArgumentException.class, () -> {
+			userService.registUser(dto);
+		});
 	}
 
 }
