@@ -36,9 +36,13 @@ public class Users extends BaseEntity{
 
     public void incLoginFailCnt() {
         this.loginFailCnt++;
+		if(this.loginFailCnt >= 5)
+			this.lockYn = true;
     }
 
     public void resetLoginFailCnt() {
-        this.loginFailCnt = 0;
+		this.loginFailCnt = 0;
+		if(this.lockYn)
+			this.lockYn = false;
     }
 }

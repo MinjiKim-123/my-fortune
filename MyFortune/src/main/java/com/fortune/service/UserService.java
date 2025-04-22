@@ -75,9 +75,6 @@ public class UserService implements UserDetailsService {
 				.orElseThrow(() -> new UsernameNotFoundException("Failed to find user by user idx."));
 
 		user.incLoginFailCnt(); //로그인 실패 횟수 증가
-		if(user.getLoginFailCnt() >= 5 && !user.getLockYn()){ //5회 이상이면서 계정 잠금 상태가 아닐 경우 잠금 처리
-			user.setLockYn(true);
-		}
 	}
 
 	/**
