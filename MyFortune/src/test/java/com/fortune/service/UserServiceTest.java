@@ -8,21 +8,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
+	private static final org.slf4j.Logger log = LoggerFactory.getLogger(UserServiceTest.class);
 	@Mock
 	private UsersRepository usersRepository;
 	
@@ -51,11 +50,11 @@ class UserServiceTest {
 		assertEquals(1, userIdx);
 		verify(usersRepository, times(1)).save(any(Users.class));
 	}
-
+	
 	@ParameterizedTest
-	@CsvSource(value = {"user1, '', ''" , 
+	@CsvSource(value = {"user1, '', ''" ,
 			"한글아이디1, '', ''",
-			"userId1, 'pwd', ''", 
+			"userId1, 'pwd', ''",
 			"userId1, 'password1', ''",
 			"userId1, 'password1!', '닉네임15자이상오류발생시키기.'"})
 	@DisplayName("회원 등록 실패 테스트 - 입력 값 오류")
@@ -63,9 +62,7 @@ class UserServiceTest {
 		//given
 		RegistUserDto dto = new RegistUserDto(userId, pwd, nickNm);
 
-		assertThrows(IllegalArgumentException.class, () -> {
-			userService.registUser(dto);
-		});
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.registUser(dto));
+		log.info("오류 메세지: " + exception.getMessage());
 	}
-
 }
