@@ -1,15 +1,13 @@
-package com.fortune.common;
+package com.fortune.security;
 
 import com.fortune.code.LoginErrorCode;
 import com.fortune.dto.users.PrincipalUserDetails;
-import com.fortune.dto.users.UserDto;
 import com.fortune.exception.LoginFailedException;
 import com.fortune.service.UserService;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -42,17 +40,16 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
 		try{
 			PrincipalUserDetails userDetails = userService.loadUserByUsername(userId);
-			UserDto userDto = userDetails.getUser();
 
 			if (bCryptPasswordEncoder.matches(userPwd, userDetails.getPassword())) { //비밀번호가 틀릴 경우
-				userService.handleWrongPwdAttempt(userDto.getIdx());
-				throw new LoginFailedException(LoginErrorCode.ID_OR_PWD_ERROR, "Bad credentials. User idx : " + userDto.getIdx());
+				userService.handleWrongPwdAttempt(userDetails.getUserIdx());
+				throw new LoginFailedException(LoginErrorCode.ID_OR_PWD_ERROR, "Bad credentials. User idx : " + userDetails.getUserIdx());
 			}
+
+			userDetails.erasePwd();//dto에서 비밀번호 값 제거
+			userService.handleSuccessLogin(userDetails.getUserIdx()); //로그인 성공 후 처리
 			
-			userDto.erasePwd();//dto에서 비밀번호 값 제거
-			userService.handleSuccessLogin(userDto.getIdx()); //로그인 성공 후 처리
-			
-			return new UsernamePasswordAuthenticationToken(userDto, null, userDetails.getAuthorities());
+			return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 		} catch (UsernameNotFoundException e){
 			log.error("Failed to find user by user id.User id: {}, errorMessage: {}", userId, e.getMessage());
 			throw new LoginFailedException(LoginErrorCode.ID_OR_PWD_ERROR, "Bad credentials.", e);

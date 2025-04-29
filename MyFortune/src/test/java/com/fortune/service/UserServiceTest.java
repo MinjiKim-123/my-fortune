@@ -1,8 +1,13 @@
 package com.fortune.service;
 
-import com.fortune.dto.users.RegistUserDto;
+import com.fortune.dto.users.SaveUserDto;
 import com.fortune.entity.Users;
+import com.fortune.entity.code.UserGenderCode;
 import com.fortune.repository.UsersRepository;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,17 +16,21 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.extern.slf4j.Slf4j;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
-
-	private static final org.slf4j.Logger log = LoggerFactory.getLogger(UserServiceTest.class);
+	
 	@Mock
 	private UsersRepository usersRepository;
 	
@@ -35,8 +44,8 @@ class UserServiceTest {
 	@DisplayName("회원 등록 성공 테스트")
 	void registUser_success() {
 		//given
-		RegistUserDto dto = new RegistUserDto("userId1", "password12!", "nickname1");
-
+		SaveUserDto dto = new SaveUserDto();
+		
 		Users savedUser = Users.builder()
 				.idx(1)
 				.build();
@@ -52,17 +61,74 @@ class UserServiceTest {
 	}
 	
 	@ParameterizedTest
-	@CsvSource(value = {"user1, '', ''" ,
-			"한글아이디1, '', ''",
-			"userId1, 'pwd', ''",
-			"userId1, 'password1', ''",
-			"userId1, 'password1!', '닉네임15자이상오류발생시키기.'"})
-	@DisplayName("회원 등록 실패 테스트 - 입력 값 오류")
-	void registUser_failed_invalidValue(String userId, String pwd, String nickNm) {
+	@CsvSource(value = {"user1, 'password1!', '01012345678', 'email111@gmail.com'" ,
+			"한글아이디1, 'password1!', '01012345678', 'email111@gmail.com'",
+			"userId1, 'pwd', '01012345678', 'email111@gmail.com'",
+			"userId1, 'password1', '연락처에 숫자아닌 값 넣기', 'email111@gmail.com'",
+			"userId1, 'password1!', '01012345678', 'email111'",
+			"userId1, 'password1!', '01012345678', 'email111@ddd'"})
+	@DisplayName("회원 등록 정규식 실패 테스트")
+	void registUser_failed_regExpTest(String userId, String pwd, String phone, String email) {
+		SaveUserDto dto = new SaveUserDto();
+		dto.setUserId(userId);
+		dto.setPwd(pwd);
+		dto.setPhone(phone);
+		dto.setEmail(email);
+		dto.setName("이름");
+		dto.setBirthDt(LocalDateTime.now());
+		dto.setGender(UserGenderCode.WOMAN);
+		
+		try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+			Validator validator = factory.getValidator();
+			Set<ConstraintViolation<SaveUserDto>> violations = validator.validate(dto);
+			for (ConstraintViolation<SaveUserDto> violation : violations) {
+				log.warn("정규식 검사 실패 - 필드: {}, 메시지: {}, 입력값: {}",
+						violation.getPropertyPath(),
+						violation.getMessage(),
+						violation.getInvalidValue());
+			}
+			
+			assertFalse(violations.isEmpty()); //violations이 비어있으면 검증 성공이기 때문에 empty가 false이여야 함 
+		}
+	}
+	
+	@Test
+	@DisplayName("비밀번호 5회 이상 실패시 계정 잠금 테스트")
+	void testLockAfterFiveWrongPwdAttempts(){
 		//given
-		RegistUserDto dto = new RegistUserDto(userId, pwd, nickNm);
+		Users user = Users.builder()
+				.idx(1)
+				.pwd(bCryptPasswordEncoder.encode("testpwd1~"))
+				.build();
+		
+		when(usersRepository.findByIdxAndDelYn(user.getIdx(), false)).thenReturn(Optional.of(user));
 
-		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.registUser(dto));
-		log.info("오류 메세지: " + exception.getMessage());
+		// when
+		for(int i = 0; i<5; i++) 
+			userService.handleWrongPwdAttempt(user.getIdx());
+		
+		//then
+		assertTrue(user.getLockYn());
+		assertEquals(5, user.getLoginFailCnt());
+	}
+	
+	@Test
+	@DisplayName("로그인 성공 후 처리 로직 테스트")
+	void testAfterLoginSuccessHandle(){
+		//given
+		Users user = Users.builder()
+				.idx(1)
+				.loginFailCnt(5)
+				.lockYn(true)
+				.build();
+
+		when(usersRepository.findByIdxAndDelYn(user.getIdx(), false)).thenReturn(Optional.of(user));
+		
+		//when
+		userService.handleSuccessLogin(user.getIdx());
+
+		//then
+		assertFalse(user.getLockYn());
+		assertEquals(0, user.getLoginFailCnt());
 	}
 }

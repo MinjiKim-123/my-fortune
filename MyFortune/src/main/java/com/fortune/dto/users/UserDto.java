@@ -1,10 +1,13 @@
 package com.fortune.dto.users;
 
 import com.fortune.entity.Users;
+import com.fortune.entity.code.UserGenderCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -18,12 +21,22 @@ public class UserDto {
 	private String userId;
 
 	private String pwd;
+	
+	private String email;
+			
+	private String phone;
 
-	private String nickname;
+	private UserGenderCode gender;
+
+	private LocalDateTime birthDt;
+
+	private String name;
 
 	private int loginFailCnt;
 
 	private boolean isLocked;
+	
+	private LocalDateTime lastLoginDt;
 
 	/**
 	 * 회원 엔티티 dto로 변환
@@ -35,9 +48,13 @@ public class UserDto {
 				.idx(user.getIdx())
 				.userId(user.getUserId())
 				.pwd(user.getPwd())
-				.nickname(user.getNickname())
+				.email(user.getEmail())
+				.phone(user.getPhone())
+				.gender(user.getGender())
+				.name(user.getName())
 				.loginFailCnt(user.getLoginFailCnt())
 				.isLocked(user.getLockYn())
+				.lastLoginDt(user.getLastLoginDt())
 				.build();
 	}
 

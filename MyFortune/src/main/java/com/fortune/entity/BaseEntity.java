@@ -1,6 +1,5 @@
 package com.fortune.entity;
 
-import com.fortune.code.converter.BooleanToYNConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.EntityListeners;
@@ -10,6 +9,8 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import com.fortune.entity.code.converter.BooleanToYNConverter;
 
 import java.time.LocalDateTime;
 

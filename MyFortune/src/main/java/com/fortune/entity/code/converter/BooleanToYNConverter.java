@@ -1,4 +1,4 @@
-package com.fortune.code.converter;
+package com.fortune.entity.code.converter;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

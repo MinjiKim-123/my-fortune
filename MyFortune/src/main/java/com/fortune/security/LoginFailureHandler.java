@@ -1,4 +1,4 @@
-package com.fortune.common;
+package com.fortune.security;
 
 import com.fortune.code.LoginErrorCode;
 import com.fortune.exception.LoginFailedException;

@@ -11,17 +11,25 @@ import java.util.Collection;
 @Getter
 public class PrincipalUserDetails implements UserDetails {
 
-	private final UserDto user;
+	private String userId;
+	
+	private Integer userIdx;
+	
+	private String userPwd;
 
 	private final Collection<? extends GrantedAuthority> authorities;
 
 	@Override
 	public String getPassword() {
-		return user.getPwd();
+		return this.userPwd;
 	}
 
 	@Override
 	public String getUsername() {
-		return user.getUserId();
+		return this.userId;
+	}
+
+	public void erasePwd(){
+		this.userPwd = null;
 	}
 }

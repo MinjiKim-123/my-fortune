@@ -3,36 +3,122 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{/layout/commonLayout}"
       xmlns="http://www.w3.org/1999/html">
-
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
 <!-- Main Content -->
 <th:block layout:fragment="content">
 
     <h1>회원가입</h1>
 
     <form method="post" action="/join" onsubmit="return checkForm();">
-        <label for="idInp">아이디</label>
-        <input type="text" name="id" id="idInp" maxlength="20" required/>
-        <button type="button" onclick="checkDuplication();">중복확인</button>
-        <br/>
-        <label for="pwdInp">비밀번호</label>
-        <input type="password" name="password" id="pwdInp" class="pwdInputs" required/>
-        <p id="pwdAlertMsg"></p>
-        <label for="rePwdInp">비밀번호 재입력</label>
-        <input type="password" id="rePwdInp" class="pwdInputs" required/>
-        <br/>
-        <label for="nickNmImp">닉네임</label>
-        <input type="text" id="nickNmImp" maxlength="15" required/>
+        <div>
+            <label for="idInp">아이디</label>
+            <input type="text" name="id" id="idInp" maxlength="20" placeholder="아이디를 입력해주세요." required/>
+            <button type="button" onclick="checkDuplication();">중복확인</button>
+            <p id="idAlertMsg" class="disp-no"></p>
+        </div>
+        
+        <div>
+            <label for="pwdInp">비밀번호</label>
+            <input type="password" name="password" id="pwdInp" class="pwdInputs" maxlength="20" placeholder="비밀번호를 입력해주세요." required/>
+            <p id="pwdAlertMsg" class="disp-no"></p>
+        </div>
+
+        <div>
+            <label for="rePwdInp">비밀번호 확인</label>
+            <input type="password" id="rePwdInp" class="pwdInputs" maxlength="20" placeholder="비밀번호를 재입력 입력해주세요." required/>
+        </div>
+
+        <div>
+            <label for="nameInp">이름</label>
+            <input type="text" id="nameInp" name="name" maxlength="10" placeholder="이름을 입력해주세요." required/>
+            <p id="nameAlertMsg" class="disp-no"></p>
+        </div>
+        
+        <div>
+            <label for="phoneInp">휴대폰번호</label>
+            <input type="number" id="phoneInp" name="phone" maxlength="11"  placeholder="숫자만 입력해주세요." required/>
+            <p id="phoneAlertMsg" class="disp-no"></p>
+        </div>
+
+        <div>
+            <label for="emailInp">이메일</label>
+            <input type="number" id="emailInp" name="email" maxlength="30"  placeholder="숫자만 입력해주세요." required/>
+            <p id="emailAlertMsg" class="disp-no"></p>
+        </div>
+        
+        <div>
+            <label>성별</label>
+            <div>
+                <label for="genderWomanChk">여자</label>
+                <input type="checkbox" name="gender" id="genderWomanChk" value="WOMAN"/>
+                <label for="genderManChk">남자</label>
+                <input type="checkbox" name="gender" id="genderManChk" value="MAN"/>
+            </div>
+        </div>
+        
+        <div>
+            <label>생년월일</label>
+            <div>
+                <label for="yearSel">연도</label>
+                <select id="yearSel" name="year">
+                </select>
+                <label for="monthSel">월</label>
+                <select id="monthSel" name="month">
+                    <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}"></option>
+                </select>
+                <label for="daySel">일</label>
+                <select id="daySel" name="day">
+                    <option th:each="day : ${#numbers.sequence(1, 31)}" th:value="${day}"></option>
+                </select>
+            </div>
+            <div>
+                <input type="hidden" name="isSolar"/>
+                <label for="type_solar">양력</label>
+                <input type="checkbox" id="type_solar" name="calendarType" checked/>
+                <label for="type_lunar">음력</label>
+                <input type="checkbox" id="type_lunar" name="calendarType"/>
+            </div>
+        </div>
+
+        <div>
+            <label>태어난 시각</label>
+            <div>
+                <label for="hourSel">시</label>
+                <select id="hourSel" name="hour">
+                    <option th:each="hour : ${#numbers.sequence(1, 23)}" th:value="${hour}"></option>
+                </select>
+                <label for="minSel">분</label>
+                <select id="minSel" name="min">
+                    <option th:each="min : ${#numbers.sequence(1, 59)}" th:value="${min}"></option>
+                </select>
+            </div>
+        </div>
+        
     </form>
 
-</th:block>
-
 <script type="text/javascript">
-
+    
     let isCheckedId = false;
-    const pwdRegExp = /^(?=.*[a-zA-Z)(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/;
-    const idRegExp = /^[a-zA-Z\d]{6,20}$/;
-
+    const pwdRegExp = /^(?=.*[a-zA-Z)(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,20}$/;
+    const idRegExp = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,20}$/;
+    const phoneRegExp = /^\d{10,11}$/;
+    const emailRegExp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    const pwdAlertMsgObj = document.getElementById('pwdAlertMsg');
+    const idAlertMsgObj = document.getElementById('idAlertMsg');
+    const emailAlertMsgObj = document.getElementById('emailAlertMsg');
+    const phoneAlertMsgObj = document.getElementById('phoneAlertMsg');
+    
     document.addEventListener('DOMContentLoaded', function (){
+        //연도 option 목록 생성
+        const yearSel = document.getElementById('yearSel');
+        const thisYear = new Date().getFullYear();
+        for(let year=1950; year<=thisYear; year++){
+            let option = document.createElement('option');
+            option.value = year.toString();
+            yearSel.appendChild(option);
+        }
+        
         document.getElementById('idInp').addEventListener('input', function (){
             if(isCheckedId)
                 isCheckedId = false;
@@ -52,16 +138,22 @@
             document.getElementById('idInp').focus();
             return;
         }
-
-        window.fetch('/id/exists?newId=' + id,{
-            method: 'get'
+        
+        const newId = document.getElementById('idInp').value;
+        window.fetch('/join/id/exists?newId=' + newId, {
+            method: 'get',
+            headers: {
+                Accept: 'application/json'
+            },
         }).then((response) => response.json())
         .then((result) => {
             isCheckedId = !result.data;
             if(result.data) {
-                alert('중복된 아이디입니다.');
+                idAlertMsgObj.innerText = '중복된 아이디입니다.';
                 document.getElementById('idInp').focus();
-            }
+            }else
+                idAlertMsgObj.innerText = '';
+                
         }).catch((error) => {
             alert('처리를 실패했습니다.');
             console.log(error);
@@ -73,13 +165,18 @@
      */
     function checkId(){
         let result = false;
-        const newId = document.getElementById('idInp').value();
-
-        if(!idRegExp.test(newId)){
-            alert('아이디는 영문 대소문자,숫자를 조합해서 6자~20자로 입력해주세요.');
-        }else
+        let message;
+        const newId = document.getElementById('idInp').value;
+    
+        if(!idRegExp.test(newId))
+            message = '아이디는 영문 대소문자,숫자를 조합해서 6자~20자로 입력해주세요.';
+        else
             result = true;
-
+        
+        setAlertMessage(idAlertMsgObj, message, result);
+        if(!result)
+            document.getElementById('idInp').focus();
+        
         return result;
     }
 
@@ -88,39 +185,131 @@
      */
     function checkPwd(){
         let result = false;
-        const pwd = document.getElementById('pwdInp').value();
-        const rePwd = document.getElementById('rePwdInp').value();
+        let message;
+        const pwd = document.getElementById('pwdInp').value;
+        const rePwd = document.getElementById('rePwdInp').value;
 
-        if(pwd !== rePwd){
-            document.getElementById('pwdAlertMsg').innerText = '비밀번호와 재입력 값이 동일하지 않습니다.'
-        }else if(!pwdRegExp.test(pwd)){
-            document.getElementById('pwdAlertMsg').innerText = '비밀번호는 대소문자,특수문자,숫자를 한가지 이상씩 8~15자로 입력해주세요.'
-        }else {
-            document.getElementById('pwdAlertMsg').innerText = '';
-            result = true
-        }
+        if(pwd !== rePwd)
+            message = '비밀번호와 재입력 값이 동일하지 않습니다.';
+        else if(!pwdRegExp.test(pwd))
+            message = '비밀번호는 대소문자,특수문자,숫자를 한가지 이상씩 8~20자로 입력해주세요.';
+        else 
+            result = true;
 
+        setAlertMessage(pwdAlertMsgObj, message, result);
+        if(!result)
+            document.getElementById('pwdInp').focus();
+        
         return result;
     }
 
+    /**
+     * 이름 확인
+     * @returns {boolean}
+     */
+    function checkName(){
+        let result = false;
+        let message;
+        const name = document.getElementById('nameInp').value;
+        
+        if(!name)
+            message = '이름을 입력해주세요.';
+        else if(name.length > 50)
+            message = '이름은 50자 이하로 입력해주세요.';
+        else
+            result = true;
+        
+        setAlertMessage(nameAlertMsgObj, message, result);
+        if(!result)
+            document.getElementById('nameInp').focus();
+        
+        return result;
+    }
+    
+    /**
+     * 연락처 확인
+     * @returns {boolean}
+     */
+    function checkPhone(){
+        let result = false;
+        let message;
+        const phoneNum = document.getElementById('phoneInp').value;
+        
+        if(!phoneRegExp.test(phoneNum))
+            message = '비밀번호와 재입력 값이 동일하지 않습니다.'
+        else
+            result = true;
+        
+        setAlertMessage(phoneAlertMsgObj, message, result);
+        if(!result)
+            document.getElementById('phoneInp').focus();
+        
+        return result;
+    }
 
+    /**
+     * 이메일 확인
+     * @returns {boolean}
+     */
+    function checkEmail(){
+        let result = false;
+        let message;
+        const email = document.getElementById('emailInp').value;
+        
+        if(!emailRegExp.test(email))
+            message = '비밀번호와 재입력 값이 동일하지 않습니다.';
+        else
+            result = true;
+        
+        setAlertMessage(emailAlertMsgObj, message, result);
+        if(!result)
+            document.getElementById('emailInp').focus();
+        
+        return result;
+    }
+    
     /**
      * 폼 입력 값 검증
      */
     function checkForm(){
         let result = false;
+        
+        if(!isCheckedId) {
+            idAlertMsgObj.innerText = '아이디 중복 확인을 해주세요.';
+            document.getElementById('idInp').focus();
+            return result;
+        }
 
-        if(!isCheckedId)
-            alert('아이디 중복 확인을 해주세요.');
-        else if(!checkPwd()) {
-            alert('비밀번호를 확인해주세요.');
-            document.getElementById('pwdInp').focus();
-        } else if(document.getElementById('nickNmImp').value())
-            alert('닉네임을 입력해주세요.');
-        else
-            result = true
-
+        let checkFnList = [checkId, checkPwd, checkName, checkPhone, checkEmail];
+        for(let fn of checkFnList){
+            result = fn();
+            if(!result)
+                return;
+        }
+      
         return result;
     }
+
+    /**
+     * 알림 메세지 설정
+     * @param obj 메세지를 띄울 객체
+     * @param message 메세지
+     * @param isHide 객체 숨김 여부
+     */
+    function setAlertMessage(obj, message = '', isHide){
+        if(!obj) return;
+
+        if(isHide){
+            obj.classList.remove('col-red');
+            obj.classList.add('disp-no');
+        }else{
+            obj.classList.remove('disp-no');
+            obj.classList.add('col-red');
+        }
+       
+        obj.innerText = message;
+    }
 </script>
+
+</th:block>
 </html>

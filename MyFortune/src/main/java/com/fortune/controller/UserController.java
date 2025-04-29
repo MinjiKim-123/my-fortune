@@ -2,7 +2,7 @@ package com.fortune.controller;
 
 import com.fortune.code.LoginErrorCode;
 import com.fortune.dto.common.AjaxResultDto;
-import com.fortune.dto.users.RegistUserDto;
+import com.fortune.dto.users.SaveUserDto;
 import com.fortune.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,8 @@ public class UserController {
 	}
 
 	@PostMapping("/join")
-	public AjaxResultDto<Void> join(@RequestBody @Valid RegistUserDto userDto) {
+	@ResponseBody
+	public AjaxResultDto<Void> join(@RequestBody @Valid SaveUserDto userDto) {
 		int userIdx = userService.registUser(userDto);
 		return userIdx > 0 ? AjaxResultDto.success(null) : AjaxResultDto.failure();
 	}

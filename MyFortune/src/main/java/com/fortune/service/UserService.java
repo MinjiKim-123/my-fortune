@@ -1,11 +1,9 @@
 package com.fortune.service;
 
 import com.fortune.dto.users.PrincipalUserDetails;
-import com.fortune.dto.users.RegistUserDto;
-import com.fortune.dto.users.UserDto;
+import com.fortune.dto.users.SaveUserDto;
 import com.fortune.entity.Users;
 import com.fortune.repository.UsersRepository;
-import com.fortune.util.RegExpUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Validated
@@ -23,15 +23,16 @@ public class UserService implements UserDetailsService {
 	private final UsersRepository usersRepository;
 
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
-
+	
 	@Override
 	public PrincipalUserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
 		Users user = usersRepository.findByUserIdAndDelYn(userId, false)
 				.orElseThrow(() -> new UsernameNotFoundException("User Not Found."));
 
 		return PrincipalUserDetails.builder()
-				.user(UserDto.entityConvertToDto(user))
+				.userId(user.getUserId())
+				.userIdx(user.getIdx())
+				.userPwd(user.getPwd())
 				.build();
 	}
 
@@ -48,18 +49,19 @@ public class UserService implements UserDetailsService {
 	 * 사용자 등록
 	 * @param userDto 등록할 데이터
 	 */
-	public int registUser(@Valid RegistUserDto userDto) {
-		if (!RegExpUtil.isValidId(userDto.getUserId()))
-			throw new IllegalArgumentException("Failed by invalid user id. " + userDto.getUserId());
-		else if (!RegExpUtil.isValidPwd(userDto.getPwd()))
-			throw new IllegalArgumentException("Failed by invalid user password.");
-		else if (userDto.getNickname().isEmpty() || userDto.getNickname().length() > 15)
-			throw new IllegalArgumentException("Failed by invalid user nickname." + userDto.getNickname());
-
+	public int registUser(@Valid SaveUserDto userDto) {
+		String encodedPwd = bCryptPasswordEncoder.encode(userDto.getPwd());
+		String encodedEmail = userDto.getEmail();
+		String encodedPhone = userDto.getPhone(); //TODO 암호화 추가 예정
+		
 		Users newUser = usersRepository.save(Users.builder()
 				.userId(userDto.getUserId())
-				.nickname(userDto.getNickname())
-				.pwd(bCryptPasswordEncoder.encode(userDto.getPwd()))
+				.pwd(encodedPwd)
+				.name(userDto.getName())
+				.email(encodedEmail)
+				.phone(encodedPhone)
+				.birthDt(userDto.getBirthDt())
+				.gender(userDto.getGender())
 				.build());
 
 		return newUser.getIdx();
@@ -87,6 +89,7 @@ public class UserService implements UserDetailsService {
 				.orElseThrow(() -> new UsernameNotFoundException("Failed to find user by user idx."));
 
 		user.resetLoginFailCnt(); //로그인 실패 횟수 초기화
+		user.setLastLoginDt(LocalDateTime.now());
 	}
 
 }
