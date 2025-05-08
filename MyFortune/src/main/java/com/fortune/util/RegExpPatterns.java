@@ -4,9 +4,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
-
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
