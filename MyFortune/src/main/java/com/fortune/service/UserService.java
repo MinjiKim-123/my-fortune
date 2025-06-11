@@ -2,9 +2,12 @@ package com.fortune.service;
 
 import com.fortune.dto.users.PrincipalUserDetails;
 import com.fortune.dto.users.SaveUserDto;
+import com.fortune.dto.users.UserDto;
 import com.fortune.entity.Users;
 import com.fortune.repository.UsersRepository;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -72,7 +75,7 @@ public class UserService implements UserDetailsService {
 	 * @param userIdx 회원 idx
 	 */
 	@Transactional
-	public void handleWrongPwdAttempt(Integer userIdx) {
+	public void handleWrongPwdAttempt(@NotNull @Min(1) Integer userIdx) {
 		Users user = usersRepository.findByIdxAndDelYn(userIdx, false)
 				.orElseThrow(() -> new UsernameNotFoundException("Failed to find user by user idx."));
 
@@ -84,12 +87,24 @@ public class UserService implements UserDetailsService {
 	 * @param userIdx 회원 idx
 	 */
 	@Transactional
-	public void handleSuccessLogin(Integer userIdx) {
+	public void handleSuccessLogin(@NotNull @Min(1) Integer userIdx) {
 		Users user = usersRepository.findByIdxAndDelYn(userIdx, false)
 				.orElseThrow(() -> new UsernameNotFoundException("Failed to find user by user idx."));
 
 		user.resetLoginFailCnt(); //로그인 실패 횟수 초기화
 		user.setLastLoginDt(LocalDateTime.now());
+	}
+
+	/**
+	 * 회원 식별 값으로 회원 정보 조회
+	 * @param userIdx 회원 식별 값
+	 * @return 회원 정보가 담긴 dto 객체
+	 */
+	public UserDto getUser(@NotNull @Min(1) Integer userIdx) {
+		Users user = usersRepository.findByIdxAndDelYn(userIdx, false)
+				.orElseThrow(() -> new UsernameNotFoundException("Failed to find user by user idx."));
+		
+		return UserDto.entityConvertToDto(user);
 	}
 
 }

@@ -18,7 +18,7 @@ public class UserController {
 
 	private final UserService userService;
 
-	@RequestMapping("/login/form")
+	@GetMapping("/login/form")
 	public String loginForm(LoginErrorCode errorCode, Model model){
 		if(errorCode != null)
 			model.addAttribute("errorMessage", errorCode.getErrorMessage());
@@ -26,7 +26,7 @@ public class UserController {
 		return "users/Login";
 	}
 
-	@RequestMapping("/join/form")
+	@GetMapping("/join/form")
 	public String joinForm() {
 		return "users/Join";
 	}
