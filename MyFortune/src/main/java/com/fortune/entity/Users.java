@@ -8,6 +8,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
+/**
+ * 회원 테이블 entity
+ */
 @Entity
 @SuperBuilder
 @Getter

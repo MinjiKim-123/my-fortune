@@ -7,6 +7,7 @@ import org.springframework.security.core.AuthenticationException;
 @Getter
 public class LoginFailedException extends AuthenticationException {
 
+	private static final long serialVersionUID = 1L;
 	private final LoginErrorCode errorCode;
 
 	public LoginFailedException(LoginErrorCode loginErrorCode, String message) {
