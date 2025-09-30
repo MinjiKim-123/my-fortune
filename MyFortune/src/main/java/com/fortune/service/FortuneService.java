@@ -7,15 +7,16 @@ import java.time.format.DateTimeFormatter;
 
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.vertexai.gemini.VertexAiGeminiChatModel;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fortune.dto.FortuneDto;
 import com.fortune.dto.users.UserDto;
 import com.fortune.exception.FortuneException;
 import com.fortune.util.ChatUtil;
+import com.fortune.util.StringRedisUtil;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -34,12 +35,10 @@ public class FortuneService {
 	private final UserService userService;
 
 	private final VertexAiGeminiChatModel geminiChatModel;
-
-	private final RedisTemplate<String, String> redisTemplate;
+	
+	private final StringRedisUtil stringRedisUtil;
 
 	private final ObjectMapper objectMapper;
-
-	private static final DateTimeFormatter TODAY_PATTERN = DateTimeFormatter.ofPattern("yyyyMMdd");
 
 	/**
 	 * 오늘의 운세 조회
@@ -49,9 +48,9 @@ public class FortuneService {
 	public FortuneDto getTodayFortune(@NotNull @Min(1) Integer userIdx) {
 		try {
 			LocalDateTime now = LocalDateTime.now();
-			String today =  TODAY_PATTERN.format(now.toLocalDate());
+			String today =  DateTimeFormatter.BASIC_ISO_DATE.format(now);
 			String redisKey = "todayFortune_" + today + "::" + userIdx;
-			String data = redisTemplate.opsForValue().get(redisKey);
+			String data = stringRedisUtil.getData(redisKey);
 			if (data != null) {
 				return objectMapper.readValue(data, FortuneDto.class);
 			}
@@ -76,13 +75,14 @@ public class FortuneService {
 						"Chat response is null. User idx :" + userIdx);
 	
 			String responseText = ChatUtil.getResponseText(response);
-	
+			
+			now = LocalDateTime.now();
 			Duration duration = Duration.between(now, LocalDateTime.of(now.toLocalDate(), LocalTime.MAX));
-			redisTemplate.opsForValue().set(redisKey, responseText, duration);
+			stringRedisUtil.setData(redisKey, responseText, duration);
+			
 			return objectMapper.readValue(responseText, FortuneDto.class);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			throw new FortuneException("Failed to get today's fortune.", e);
 		}
 	}
-
 }

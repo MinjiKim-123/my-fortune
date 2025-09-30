@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 @Validated
-public class RedisUtil {
+public class StringRedisUtil {
 
 	private final RedisTemplate<String, String> redisTemplate;
 	
@@ -50,7 +50,7 @@ public class RedisUtil {
 		setData(key, value, duration.getSeconds());
 	}
 	
-	public String getData(String key) {
-		return key; 
+	public String getData(@NotBlank(message = "key 값을 입력해주세요.") String key) {
+		return redisTemplate.opsForValue().get(key);  
 	}
 }
