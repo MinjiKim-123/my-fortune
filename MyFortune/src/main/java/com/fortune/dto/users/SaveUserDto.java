@@ -49,4 +49,7 @@ public class SaveUserDto {
 
 	@NotNull(message = "성별을 입력해주세요.")
 	private UserGenderCode gender;
+	
+	@NotNull(message = "양력/음력 여부를 선택해주세요.")
+	private String solarYn;
 }

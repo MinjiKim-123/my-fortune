@@ -22,12 +22,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class BaseEntity {
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, name = "ins_date")
     @CreatedDate
     private LocalDateTime insDate;
 
     @LastModifiedDate
-    @Column(nullable = false)
+    @Column(nullable = false, name = "upt_date")
     private LocalDateTime uptDate;
 
     @Column(name = "del_yn", nullable = false, length = 1)

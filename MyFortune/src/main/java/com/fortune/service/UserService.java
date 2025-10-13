@@ -65,6 +65,7 @@ public class UserService implements UserDetailsService {
 				.phone(encodedPhone)
 				.birthDt(userDto.getBirthDt())
 				.gender(userDto.getGender())
+				.solarYn("Y".equals(userDto.getSolarYn()))
 				.build());
 
 		return newUser.getIdx();

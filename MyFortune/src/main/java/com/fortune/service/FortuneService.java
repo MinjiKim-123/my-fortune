@@ -76,7 +76,6 @@ public class FortuneService {
 	
 			String responseText = ChatUtil.getResponseText(response);
 			
-			now = LocalDateTime.now();
 			Duration duration = Duration.between(now, LocalDateTime.of(now.toLocalDate(), LocalTime.MAX));
 			stringRedisUtil.setData(redisKey, responseText, duration);
 			
