@@ -10,7 +10,6 @@ import org.springframework.ai.vertexai.gemini.VertexAiGeminiChatModel;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fortune.dto.FortuneDto;
 import com.fortune.dto.users.UserDto;
@@ -55,14 +54,9 @@ public class FortuneService {
 				return objectMapper.readValue(data, FortuneDto.class);
 			}
 	
-			UserDto user = userService.getUser(userIdx);
+ 			UserDto user = userService.getUser(userIdx);
 	
-			String systemMessage = """
-					아래 json 형식으로 운세를 알려줘.
-					{
-					    "name": "<이름>",
-					    "fortune": "<운세>"
-					}""";
+			String systemMessage = defultSystemMsg();
 	
 			String birthDate = user.getBirthDt().format(DateTimeFormatter.ISO_DATE);
 			String birthTime = user.getBirthDt().format(DateTimeFormatter.ISO_TIME);
@@ -83,5 +77,18 @@ public class FortuneService {
 		} catch (Exception e) {
 			throw new FortuneException("Failed to get today's fortune.", e);
 		}
+	}
+	
+	/**
+	 * 운세 기본 system message
+	 * @return 운세 기본 system message
+	 */
+	private String defultSystemMsg() {
+		return 	"""
+				아래 json 형식으로 운세를 알려줘.
+				{
+				    "name": "<이름>",
+				    "fortune": "<운세>"
+				}""";
 	}
 }

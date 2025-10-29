@@ -1,13 +1,14 @@
 package com.fortune.dto.users;
 
+import java.time.LocalDateTime;
+
 import com.fortune.entity.Users;
 import com.fortune.entity.code.UserGenderCode;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 
 @Getter
@@ -55,6 +56,7 @@ public class UserDto {
 				.loginFailCnt(user.getLoginFailCnt())
 				.isLocked(user.getLockYn())
 				.lastLoginDt(user.getLastLoginDt())
+				.birthDt(user.getBirthDt())
 				.build();
 	}
 

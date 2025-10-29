@@ -1,23 +1,30 @@
 package com.fortune.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fortune.entity.code.converter.BooleanToYNConverter;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.MappedSuperclass;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 @SuperBuilder
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class BaseEntity {
