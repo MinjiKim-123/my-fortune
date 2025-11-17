@@ -37,6 +37,7 @@ public class ChatUtil {
      * @return chat ai 응답 객체
      */
     public static ChatResponse call(ChatModel chatModel, String userMessage, String systemMessage) {
+    	//TODO(코드블록과 관련된 프롬포트를 주지 않더라도 원하는 클래스 타입으로 응답받을 수 있도록 수정할 것)
         List<Message> messages = List.of(new SystemMessage(systemMessage), new UserMessage(userMessage));
         Prompt chatPrompt = new Prompt(messages);
         return chatModel.call(chatPrompt);

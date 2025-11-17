@@ -20,6 +20,9 @@ spring:
         gemini:
           project-id: '구글 프로젝트 ID'
           location: 'asia-northeast3'
+          chat: 
+            options:
+              model: 'gemini-2.5-flash' #default는 2-0-flash -> asis 지역은 지원 X
 key:
   aes256: 'AES256 암호화용 키'
 
