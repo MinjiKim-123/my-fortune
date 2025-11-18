@@ -5,9 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.vertexai.gemini.VertexAiGeminiChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ class ChatUtilIntegrationTest {
 
 	@Autowired
 	private ObjectMapper objectMapper;
+	
+	@Autowired
+	private ChatClient geminiChatClient;
 
 	@Test
 	void callGeminiSuccess() throws JsonProcessingException {
@@ -45,6 +50,20 @@ class ChatUtilIntegrationTest {
 		Map<String, String> map = objectMapper.readValue(resText, new TypeReference<Map<String, String>>() {
 		});
 		assertEquals(LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE), map.get("date"));
+	}
+	
+	@Test
+	void callGeminiSuccessByChatClient() {
+		String userMsg = "오늘의 날짜를 알려주세요";
+		String sysMsg = """
+				아래 json 형식으로 알려줘. 날짜 형식은 yyyyMMdd 패턴에 맞춰서 알려줘
+				{
+				    "date": "<날짜>"
+				}
+				""";
+		
+		HashMap<String, Object> map = ChatUtil.call(geminiChatClient, userMsg, sysMsg, HashMap.class);
+		assertNotNull(map.get("date"));
 	}
 
 }

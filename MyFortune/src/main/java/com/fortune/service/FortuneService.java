@@ -5,8 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.vertexai.gemini.VertexAiGeminiChatModel;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -33,12 +32,11 @@ public class FortuneService {
 
 	private final UserService userService;
 
-	private final VertexAiGeminiChatModel geminiChatModel;
-	
 	private final StringRedisUtil stringRedisUtil;
 
 	private final ObjectMapper objectMapper;
 
+	private final ChatClient geminiChatClient;
 	/**
 	 * 오늘의 운세 조회
 	 * @param userIdx
@@ -63,17 +61,18 @@ public class FortuneService {
 			String userMessage = String.format("안녕하세요. 저의 이름은 %s입니다. 생년월일은 %s, 태어난 시간은 %s이고, 성별은 %s입니다. 오늘의 운세를 봐주세요.",
 					user.getName(), birthDate, birthTime, user.getGender().getDesc());
 	
-			ChatResponse response = ChatUtil.call(geminiChatModel, userMessage, systemMessage);
-			if (response == null)
+			FortuneDto fortuneDto = ChatUtil.call(geminiChatClient, userMessage, systemMessage, FortuneDto.class);
+			if (fortuneDto == null)
 				throw new IllegalStateException(
 						"Chat response is null. User idx :" + userIdx);
 	
-			String responseText = ChatUtil.getResponseText(response);
+			//String responseText = ChatUtil.getResponseText(response);
 			
+			String redisValue = objectMapper.writeValueAsString(fortuneDto);
 			Duration duration = Duration.between(now, LocalDateTime.of(now.toLocalDate(), LocalTime.MAX));
-			stringRedisUtil.setData(redisKey, responseText, duration);
+			stringRedisUtil.setData(redisKey, redisValue, duration);
 			
-			return objectMapper.readValue(responseText, FortuneDto.class);
+			return fortuneDto;
 		} catch (Exception e) {
 			throw new FortuneException("Failed to get today's fortune.", e);
 		}

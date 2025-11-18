@@ -3,6 +3,7 @@ package com.fortune.util;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
@@ -29,7 +30,7 @@ public class ChatUtil {
         return chatModel.call(chatPrompt);
     }
 
-        /**
+     /**
      * chat ai 호출
      * @param chatModel 호출할 chat 모델
      * @param userMessage 사용자 메세지
@@ -37,7 +38,6 @@ public class ChatUtil {
      * @return chat ai 응답 객체
      */
     public static ChatResponse call(ChatModel chatModel, String userMessage, String systemMessage) {
-    	//TODO(코드블록과 관련된 프롬포트를 주지 않더라도 원하는 클래스 타입으로 응답받을 수 있도록 수정할 것)
         List<Message> messages = List.of(new SystemMessage(systemMessage), new UserMessage(userMessage));
         Prompt chatPrompt = new Prompt(messages);
         return chatModel.call(chatPrompt);
@@ -56,4 +56,19 @@ public class ChatUtil {
             .orElseThrow(() -> new IllegalStateException("응답이 없습니다."));
     }   
 
+    /**
+     * chat ai 호출
+     * @param chatModel 호출할 chat 모델
+     * @param userMessage 사용자 메세지
+     * @param systemMessage 시스템 메세지
+     * @return chat ai 응답 객체
+     */
+    public static <T> T call(ChatClient chatClient, String userMessage, String systemMessage, Class<T> returnType) {
+    	List<Message> messages = List.of(new SystemMessage(systemMessage), new UserMessage(userMessage));
+        Prompt chatPrompt = new Prompt(messages);
+    	return chatClient
+    			.prompt(chatPrompt)
+    			.call()
+    			.entity(returnType);
+    }
 }
