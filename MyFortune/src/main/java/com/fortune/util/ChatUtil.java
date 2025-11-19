@@ -44,6 +44,18 @@ public class ChatUtil {
     }
 
     /**
+    * chat ai 호출
+    * @param chatModel 호출할 chat 모델
+    * @param userMessage 사용자 메세지
+    * @param systemMessage 시스템 메세지
+    * @return chat ai 응답 객체
+    */
+   public static <T> T call(ChatModel chatModel, String userMessage, String systemMessage, Class<T> returnType) {
+	   ChatClient chatClient = ChatClient.create(chatModel);
+	   return ChatUtil.call(chatClient, userMessage, systemMessage, returnType);
+   }
+   
+    /**
      * 응답 메세지만 추출
      * @param response chat ai 응답 객체
      * @return 응답 메세지
