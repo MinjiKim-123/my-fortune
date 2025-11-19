@@ -1,4 +1,4 @@
-package com.fortune.util.validator;
+package com.fortune.validator;
 
 import com.fortune.util.RegExpPatterns;
 import jakarta.validation.Constraint;

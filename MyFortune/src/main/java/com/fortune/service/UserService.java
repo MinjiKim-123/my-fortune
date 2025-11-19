@@ -1,14 +1,7 @@
 package com.fortune.service;
 
-import com.fortune.dto.users.PrincipalUserDetails;
-import com.fortune.dto.users.SaveUserDto;
-import com.fortune.dto.users.UserDto;
-import com.fortune.entity.Users;
-import com.fortune.repository.UsersRepository;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,7 +9,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.time.LocalDateTime;
+import com.fortune.dto.users.PrincipalUserDetails;
+import com.fortune.dto.users.SaveUserDto;
+import com.fortune.dto.users.UserDto;
+import com.fortune.entity.Users;
+import com.fortune.repository.UsersRepository;
+import com.fortune.util.AES256Util;
+import com.fortune.validator.InsertCheck;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.groups.Default;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,8 @@ public class UserService implements UserDetailsService {
 	private final UsersRepository usersRepository;
 
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
+	
+	private final AES256Util aes256Util;
 	
 	@Override
 	public PrincipalUserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
@@ -52,7 +58,8 @@ public class UserService implements UserDetailsService {
 	 * 사용자 등록
 	 * @param userDto 등록할 데이터
 	 */
-	public int registUser(@Valid SaveUserDto userDto) {
+	@Validated({Default.class, InsertCheck.class})
+	public int registUser(SaveUserDto userDto) {
 		String encodedPwd = bCryptPasswordEncoder.encode(userDto.getPwd());
 		String encodedEmail = userDto.getEmail();
 		String encodedPhone = userDto.getPhone(); //TODO 암호화 추가 예정

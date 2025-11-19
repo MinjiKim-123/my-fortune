@@ -1,19 +1,21 @@
 package com.fortune.dto.users;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.validator.constraints.Length;
+
 import com.fortune.entity.code.UserGenderCode;
 import com.fortune.util.RegExpPatterns;
-import com.fortune.util.validator.RegExpCheck;
+import com.fortune.validator.InsertCheck;
+import com.fortune.validator.RegExpCheck;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
 
-import java.time.LocalDateTime;
-
-// TODO validation어노테이션에 insert/update에 맞춰서 그룹 속성 설정 추가
 /**
  * 회원 등록용 DTO
  */
@@ -23,11 +25,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SaveUserDto {
 
-	@NotBlank(message = "아이디를 입력해주세요.")
+	@NotBlank(message = "아이디를 입력해주세요.", groups = InsertCheck.class)
 	@RegExpCheck(regExpType = RegExpPatterns.Type.REG_ID)
 	private String userId;
 
-	@NotBlank(message = "비밀번호를 입력해주세요.")
+	@NotBlank(message = "비밀번호를 입력해주세요.", groups = InsertCheck.class)
 	@RegExpCheck(regExpType = RegExpPatterns.Type.REG_PWD)
 	private String pwd;
 
