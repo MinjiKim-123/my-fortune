@@ -1,5 +1,6 @@
 package com.fortune.service;
 
+import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -60,9 +61,17 @@ public class UserService implements UserDetailsService {
 	 */
 	@Validated({Default.class, InsertCheck.class})
 	public int registUser(SaveUserDto userDto) {
-		String encodedPwd = bCryptPasswordEncoder.encode(userDto.getPwd());
-		String encodedEmail = userDto.getEmail();
-		String encodedPhone = userDto.getPhone(); //TODO 암호화 추가 예정
+		
+		String encodedPwd = null;
+		String encodedEmail = null;
+		String encodedPhone = null;
+		try {
+			encodedPwd = bCryptPasswordEncoder.encode(userDto.getPwd());
+			encodedEmail = aes256Util.encrypt(userDto.getEmail());
+			encodedPhone = aes256Util.encrypt(userDto.getPhone());
+		} catch (GeneralSecurityException | IllegalArgumentException e) {
+			throw new IllegalArgumentException("암호화 실패.", e);
+		}
 		
 		Users newUser = usersRepository.save(Users.builder()
 				.userId(userDto.getUserId())

@@ -16,10 +16,12 @@ import com.fortune.validator.InsertCheck;
 
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class UserController {
 
 	private final UserService userService;
@@ -46,7 +48,12 @@ public class UserController {
 	@PostMapping("/join")
 	@ResponseBody
 	public AjaxResultDto<Void> join(@RequestBody @Validated({Default.class, InsertCheck.class}) SaveUserDto userDto) {
-		int userIdx = userService.registUser(userDto);
-		return userIdx > 0 ? AjaxResultDto.success(null) : AjaxResultDto.failure();
+		try {
+			int userIdx = userService.registUser(userDto);
+			return userIdx > 0 ? AjaxResultDto.success(null) : AjaxResultDto.failure();
+		} catch (IllegalArgumentException e) {
+			log.error("사용자 등록 실패.", e);
+			return AjaxResultDto.failure();
+		}
 	}
 }
