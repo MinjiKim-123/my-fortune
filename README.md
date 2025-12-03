@@ -2,3 +2,7 @@
 SPRING AI 프레임워크로  대화형 AI API를 활용한 운세 사이트 프로젝트.<br/>
 사용자에게 맞춤형 오늘의 운세를 제공하는 웹 애플리케이션입니다. <br/>
 생년월일시, 이름, 정보 등 사용자의 정보로 AI가 분석한 오늘의 운세를 제공합니다. 
+
+
+## Study memo 
+- [SPRING AI란?](https://github.com/MinjiKim-123/study_memo/blob/main/spring/SPRING_AI.md)
